@@ -25,10 +25,8 @@
       "url": "http://mit-license.org/"
     }
   ],
-  "dependencies": {
-  },
-  "devDependencies": {
-  },
+  "dependencies": {},
+  "devDependencies": {},
   "license": "MIT",
   "directories": {
     "example": "example",
@@ -36,5 +34,6 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
-  }
+  },
+  "homepage": "https://github.com/Magnitus-/ExpressUserLocalBasic"
 }
