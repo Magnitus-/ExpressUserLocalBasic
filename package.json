@@ -1,0 +1,40 @@
+{
+  "name": "express-user-local-basic",
+  "version": "0.0.1-alpha.1",
+  "description": "Basic response handler for express-user-local.",
+  "keywords": [
+    "Express",
+    "Middleware",
+    "express-user",
+    "Resonse",
+    "Local"
+  ],
+  "author": "Eric Vallee <eric_vallee2003@yahoo.ca>",
+  "main": "./lib/ExpressUserLocalBasic.js",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/Magnitus-/ExpressUserLocalBasic"
+  },
+  "bugs": {
+    "url": "http://github.com/Magnitus-/ExpressUserLocalBasic/issues",
+    "email": "eric_vallee2003@yahoo.ca"
+  },
+  "licenses": [
+    {
+      "type": "MIT License",
+      "url": "http://mit-license.org/"
+    }
+  ],
+  "dependencies": {
+  },
+  "devDependencies": {
+  },
+  "license": "MIT",
+  "directories": {
+    "example": "example",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
