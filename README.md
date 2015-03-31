@@ -18,3 +18,9 @@ More doc to come later. Feel free to look at the example in the express-user-loc
 -------------
 
 Initial prototype
+
+0.0.1-alpha.2
+-------------
+
+- Updated library to be compatible with route change in the 0.0.1-alpha.15 version of express-user
+- Updated library to handle response feedback from version 0.0.1-alpha.12 of express-user-local

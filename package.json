@@ -1,6 +1,6 @@
 {
   "name": "express-user-local-basic",
-  "version": "0.0.1-alpha.1",
+  "version": "0.0.1-alpha.2",
   "description": "Basic response handler for express-user-local.",
   "keywords": [
     "Express",
