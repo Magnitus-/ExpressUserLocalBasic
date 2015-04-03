@@ -8,19 +8,23 @@ It is the responder part of the validator/Store/Responder architecture (filled r
 Status
 ======
 
-Like its sibling projects, this library is in prototype stage at this point. It is untested (beyond basic manual tests) and I'll postpone the writing of automated tests until the API is relatively final.
+At this point, the structure is stable.
 
-In particular, only the response logic in express-user has been moved to this library so far. The same will have to be done for express-user-local.
+However, I will still label this library as alpha until a good refactoring pass has been done to eliminate redundant code as well as unit tests and more extensive documentation.
 
-More doc to come later. Feel free to look at the example in the express-user-local project for a complete implementation.
-
-0.0.1-alpha.1
+0.0.1-alpha.3
 -------------
 
-Initial prototype
+- Updated library to take account new error returned by the version 2.0.0 of express-access-control 
+- Removed Roles argument from route handling closure as per changes to version 1.0.0 of express-user
 
 0.0.1-alpha.2
 -------------
 
 - Updated library to be compatible with route change in the 0.0.1-alpha.15 version of express-user
 - Updated library to handle response feedback from version 0.0.1-alpha.12 of express-user-local
+
+0.0.1-alpha.1
+-------------
+
+Initial prototype
