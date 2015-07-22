@@ -5,6 +5,11 @@ Basic response handlers, built to be compatible with the express-user-local proj
 
 It is the responder part of the validator/Store/Responder architecture (filled respectively by express-user-local, express-user and this project) which was designed to handle user management with Express.
 
+Usage
+=====
+
+NOTE TO SELF: Make sure email is always included in User during session fetches.
+
 Error Responses
 ===============
 
@@ -46,9 +51,23 @@ Always return 409.
 Success Responses
 =================
 
+SendEmail
+----------
+
+SendEmail always gets called for both PATCH routes, the POST /User/:Field/:ID/Recovery/:SetField route and the POST /Users route.
+
+Its first 3 arguments are the 'User', 'Update' and 'Generated' arguments. It is up to the SendMail call to determine whether to send an email based on their values, craft the content of that email and send it.
+
+For the POST /Users route, 'User' contains all the fields of the newly created user and 'Update' is null.
+
+For all other routes, User contains fields identifying and authentifying the user to operate on while Update contains the new value of fields to update.
+
+Also, for all routes, Generated contains a list fields that were automatically generated for the user or null if no fields were automatically generated.
+
 POST /Users
 -----------
 
+Calls SendEmail if it's defined. Returns 201.
 
 PATCH /User/Self
 ----------------
@@ -62,7 +81,7 @@ DELETE /User/Self
 GET /User/Self
 --------------
 
-
+Defers handling to the GetSerializer option.
 
 PUT /Session/Self/User
 ----------------------
@@ -106,14 +125,6 @@ PUT /User/:Field/:ID/Memberships/:Membership
 DELETE /User/:Field/:ID/Memberships/:Membership
 -----------------------------------------------
 
-
-
-Status
-======
-
-At this point, the structure is stable.
-
-However, I will still label this library as alpha until a good refactoring pass has been done to eliminate redundant code as well as unit tests and more extensive documentation.
 
 History
 =======

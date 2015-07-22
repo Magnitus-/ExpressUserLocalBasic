@@ -26,14 +26,28 @@
     }
   ],
   "dependencies": {},
-  "devDependencies": {},
+  "devDependencies": {
+    "body-parser": "^1.13.2",
+    "express": "^4.13.1",
+    "express-session": "^1.11.3",
+    "express-session-mongodb": "^1.3.3",
+    "express-user": "^1.2.0",
+    "express-user-local": "^1.2.0",
+    "mongodb": "^2.0.39",
+    "nimble": "0.0.2",
+    "nodeunit": "~0.9.0",
+    "regex-email": "^1.0.2",
+    "uid-safe": "^2.0.0",
+    "user-properties": "^3.4.1",
+    "user-store": "^2.4.2"
+  },
   "license": "MIT",
   "directories": {
     "example": "example",
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "./node_modules/nodeunit/bin/nodeunit test"
   },
   "homepage": "https://github.com/Magnitus-/ExpressUserLocalBasic"
 }
