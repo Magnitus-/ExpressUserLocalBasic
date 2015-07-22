@@ -1,3 +1,7 @@
+//Copyright (c) 2015 Eric Vallee <eric_vallee2003@yahoo.ca>
+//MIT License: https://raw.githubusercontent.com/Magnitus-/ExpressUserLocalBasic/master/License.txt
+
+
 var Nimble = require('nimble');
 var Express = require('express');
 var Http = require('http');
