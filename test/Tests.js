@@ -50,6 +50,7 @@ function SendEmail(RoutingVars, Email, Callback)
     {
         Context['EmailContent']['EmailToken'] = Source['EmailToken'];
     }
+    Callback();
 }
 
 function Setup(UserSchema, Callback)
@@ -231,8 +232,18 @@ exports.Main = {
         });
     },
     'POST /Users': function(Test) {
-        Test.expect(0);
-        Test.done();
+        Test.expect(3);
+        var Requester = new RequestHandler();
+        Requester.Request('POST', '/Users', function(Status, Body) {
+            Test.ok(Status === 400, "Confirming that requests with missing required parameters return 400.");
+            Requester.Request('POST', '/Users', function(Status, Body) {
+                Test.ok(Status === 400, "Confirming that requests with fields that do not pass validation return 400.");
+                Requester.Request('POST', '/Users', function(Status, Body) {
+                    Test.ok(Status === 201, "Confirming that valid creation returns 201.");
+                    Test.done();
+                }, {'User': {'Username': 'Magnitus', 'Email': 'ma@ma.ma', 'Password': 'hahahihihoho', 'Address': 'Vinvin du finfin'}}, true);
+            }, {'User': {'Username': 'Magnitus', 'Email': '1', 'Password': 'hahahihihoho', 'Address': 'Vinvin du finfin'}}, true);
+        }, {'User': {'Username': 'Magnitus', 'Email': 'ma@ma.ma', 'Password': 'hahahihihoho'}}, true);
     },
     'PATCH /User/Self': function(Test) {
         Test.expect(0);
