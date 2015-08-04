@@ -44,7 +44,7 @@ function SendEmail(RoutingVars, Email, Callback)
     Context['EmailContent'] = {'Email': Email};
     if(Source['Password'])
     {
-        Context['EmailContent']['PassWord'] = Source['Password'];
+        Context['EmailContent']['Password'] = Source['Password'];
     }
     if(Source['EmailToken'])
     {
@@ -171,6 +171,24 @@ function RequestHandler()
     }
 }
 
+function CreateAndLogin(Requester, Credentials, Callback, Elevate)
+{
+    Requester.Request('POST', '/Users', function(Status, Body) {
+        Requester.Request('PUT', '/Session/Self/User', function(Status, Body) {
+            if(Elevate)
+            {
+                Requester.Request('PUT', '/User/Self/Memberships/Admin', function(Status, Body) {
+                    Callback();
+                }, {'User': {}}, false);
+            }
+            else
+            {
+                Callback();
+            }
+        }, {'User': Credentials}, false);
+    }, {'User': Credentials}, false);
+}
+
 exports.Main = {
     'setUp': function(Callback) {
         var UserSchema = UserProperties(
@@ -232,7 +250,7 @@ exports.Main = {
         });
     },
     'POST /Users': function(Test) {
-        Test.expect(3);
+        Test.expect(10);
         var Requester = new RequestHandler();
         Requester.Request('POST', '/Users', function(Status, Body) {
             Test.ok(Status === 400, "Confirming that requests with missing required parameters return 400.");
@@ -240,14 +258,44 @@ exports.Main = {
                 Test.ok(Status === 400, "Confirming that requests with fields that do not pass validation return 400.");
                 Requester.Request('POST', '/Users', function(Status, Body) {
                     Test.ok(Status === 201, "Confirming that valid creation returns 201.");
-                    Test.done();
+                    Test.ok(Context['EmailContent']['Email'] === 'ma@ma.ma' && Context['EmailContent']['Password'] === 'hahahihihoho' && Context['EmailContent']['EmailToken'], "Confirming that email callback got called.");
+                    Requester.Request('POST', '/Users', function(Status, Body) {
+                        Test.ok(Status === 409, "Confirming that conflicting with unique key in the store returns 409.");
+                        Requester.Request('POST', '/Users', function(Status, Body) {
+                            Test.ok(Status === 400, "Confirming that malformed requests returns 400.");
+                            Requester.Request('POST', '/Users', function(Status, Body) {
+                                Test.ok(Status === 400, "Confirming that fields not passing validation returns 400.");
+                                Requester.Request('POST', '/Users', function(Status, Body) {
+                                    Test.ok(Status === 400, "Confirming that having no ID returns 400.");
+                                    Requester.Request('POST', '/Users', function(Status, Body) {
+                                        Test.ok(Status === 400, "Confirming that having no authentication returns 400.");
+                                        Requester.Request('POST', '/Users', function(Status, Body) {
+                                            Test.ok(Status === 400, "Confirming that missing a non-role specific required field returns 400.");
+                                            Test.done();
+                                        }, {'User': {'Username': 'Magnitus2', 'Email': 'ma@ma.ma2', 'Password': 'hahahihihoho2'}}, true);
+                                    }, {'User': {'Username': 'Magnitus2', 'Email': 'ma@ma.ma2', 'Address': 'Vinvin du finfin2'}}, true);
+                                }, {'User': {'Password': 'hahahihihoho2', 'Address': 'Vinvin du finfin2'}}, true);
+                            }, {'User': {'Username': '2', 'Email': 'ma@ma.ma2', 'Password': 'hahahihihoho2', 'Address': 'Vinvin du finfin2'}}, true);
+                        }, {}, true);
+                    }, {'User': {'Username': 'Magnitus', 'Email': 'ma@ma.ma', 'Password': 'hahahihihoho', 'Address': 'Vinvin du finfin'}}, true);
                 }, {'User': {'Username': 'Magnitus', 'Email': 'ma@ma.ma', 'Password': 'hahahihihoho', 'Address': 'Vinvin du finfin'}}, true);
             }, {'User': {'Username': 'Magnitus', 'Email': '1', 'Password': 'hahahihihoho', 'Address': 'Vinvin du finfin'}}, true);
         }, {'User': {'Username': 'Magnitus', 'Email': 'ma@ma.ma', 'Password': 'hahahihihoho'}}, true);
     },
     'PATCH /User/Self': function(Test) {
-        Test.expect(0);
-        Test.done();
+        Test.expect(1);
+        var Requester = new RequestHandler();
+        Requester.Request('PATCH', '/User/Self', function(Status, Body) {
+            Test.ok(Status === 401, "Confirming that trying to modify self when not logged in returns 401.");
+            CreateAndLogin(Requester, {'Username': 'Magnitus', 'Email': 'ma@ma.ma', 'Password': 'hahahihihoho', 'Address': 'Vinvin du finfin'}, function() {
+                Requester.Request('GET', '/User/Self', function(Status, Body) {
+                    console.log(Status);
+                    console.log(Body);
+                    //Test.ok(Status === 400, "Confirming that trying to modify self with no auth ID returns 400.");
+                    Test.done();
+                }, {}, true);
+            });
+        }, {'User': {'Username': 'Magnitus', 'Email': 'ma@ma.ma', 'Password': 'hahahihihoho'}, 'Update': {'Address': 'hahahihihoho'}}, true);
     },
     'DELETE /User/Self ': function(Test) {
         Test.expect(0);
