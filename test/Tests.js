@@ -283,23 +283,32 @@ exports.Main = {
         }, {'User': {'Username': 'Magnitus', 'Email': 'ma@ma.ma', 'Password': 'hahahihihoho'}}, true);
     },
     'PATCH /User/Self': function(Test) {
-        Test.expect(1);
+        Test.expect(4);
         var Requester = new RequestHandler();
         Requester.Request('PATCH', '/User/Self', function(Status, Body) {
             Test.ok(Status === 401, "Confirming that trying to modify self when not logged in returns 401.");
             CreateAndLogin(Requester, {'Username': 'Magnitus', 'Email': 'ma@ma.ma', 'Password': 'hahahihihoho', 'Address': 'Vinvin du finfin'}, function() {
-                Requester.Request('GET', '/User/Self', function(Status, Body) {
-                    console.log(Status);
-                    console.log(Body);
-                    //Test.ok(Status === 400, "Confirming that trying to modify self with no auth ID returns 400.");
-                    Test.done();
-                }, {}, true);
+                Requester.Request('PATCH', '/User/Self', function(Status, Body) {
+                    Test.ok(Status === 400, "Confirming that trying to modify a non mutable field returns 400.");
+                    Requester.Request('PATCH', '/User/Self', function(Status, Body) {
+                        Test.ok(Status === 400, "Confirming that trying to modify a non accessible field returns 400.");
+                        Requester.Request('PATCH', '/User/Self', function(Status, Body) {
+                            Test.ok(Status === 400, "Confirming that trying to modify a field to a value that does not validate returns 400.");
+                            Test.done();
+                        }, {'User': {'Username': 'Magnitus', 'Email': 'ma@ma.ma', 'Password': 'hahahihihoho'}, 'Update': {'Age': 'abc'}}, true);
+                    }, {'User': {'Username': 'Magnitus', 'Email': 'ma@ma.ma', 'Password': 'hahahihihoho'}, 'Update': {'EmailToken': 'hahahihihoho'}}, true);
+                }, {'User': {'Username': 'Magnitus', 'Email': 'ma@ma.ma', 'Password': 'hahahihihoho'}, 'Update': {'Username': 'hahahihihoho'}}, true);
             });
         }, {'User': {'Username': 'Magnitus', 'Email': 'ma@ma.ma', 'Password': 'hahahihihoho'}, 'Update': {'Address': 'hahahihihoho'}}, true);
     },
     'DELETE /User/Self ': function(Test) {
-        Test.expect(0);
-        Test.done();
+        Test.expect(1);
+        var Requester = new RequestHandler();
+        Requester.Request('DELETE', '/User/Self', function(Status, Body) {
+            Test.ok(Status === 401, "Confirming that trying to delete self when not logged in returns 401.");
+            
+            Test.done();
+        });
     },
     'GET /User/Self': function(Test) {
         Test.expect(0);
