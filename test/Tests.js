@@ -283,7 +283,7 @@ exports.Main = {
         }, {'User': {'Username': 'Magnitus', 'Email': 'ma@ma.ma', 'Password': 'hahahihihoho'}}, true);
     },
     'PATCH /User/Self': function(Test) {
-        Test.expect(4);
+        Test.expect(7);
         var Requester = new RequestHandler();
         Requester.Request('PATCH', '/User/Self', function(Status, Body) {
             Test.ok(Status === 401, "Confirming that trying to modify self when not logged in returns 401.");
@@ -294,28 +294,58 @@ exports.Main = {
                         Test.ok(Status === 400, "Confirming that trying to modify a non accessible field returns 400.");
                         Requester.Request('PATCH', '/User/Self', function(Status, Body) {
                             Test.ok(Status === 400, "Confirming that trying to modify a field to a value that does not validate returns 400.");
-                            Test.done();
-                        }, {'User': {'Username': 'Magnitus', 'Email': 'ma@ma.ma', 'Password': 'hahahihihoho'}, 'Update': {'Age': 'abc'}}, true);
-                    }, {'User': {'Username': 'Magnitus', 'Email': 'ma@ma.ma', 'Password': 'hahahihihoho'}, 'Update': {'EmailToken': 'hahahihihoho'}}, true);
-                }, {'User': {'Username': 'Magnitus', 'Email': 'ma@ma.ma', 'Password': 'hahahihihoho'}, 'Update': {'Username': 'hahahihihoho'}}, true);
+                            Requester.Request('PATCH', '/User/Self', function(Status, Body) {
+                                Test.ok(Status === 400, "Confirming that passing a malformed password value returns 400.");
+                                Requester.Request('PATCH', '/User/Self', function(Status, Body) {
+                                    Test.ok(Status === 404, "Confirming that passing the wrong password value returns 404.");
+                                    Requester.Request('PATCH', '/User/Self', function(Status, Body) {
+                                        Test.ok(Status === 204, "Confirming that a successful modification returns 204.");
+                                        Test.done();
+                                    }, {'User': {'Password': 'hahahihihoho'}, 'Update': {'Address': '1234 fake rue', 'Age': 12}}, true);
+                                }, {'User': {'Password': 'hahahihi'}, 'Update': {'Address': '1234 fake rue', 'Age': 12}}, true);
+                            }, {'User': {'Password': 'ha'}, 'Update': {'Address': '1234 fake rue', 'Age': 12}}, true);
+                        }, {'User': {'Password': 'hahahihihoho'}, 'Update': {'Age': 'abc'}}, true);
+                    }, {'User': {'Password': 'hahahihihoho'}, 'Update': {'EmailToken': 'hahahihihoho'}}, true);
+                }, {'User': {'Password': 'hahahihihoho'}, 'Update': {'Username': 'hahahihihoho'}}, true);
             });
-        }, {'User': {'Username': 'Magnitus', 'Email': 'ma@ma.ma', 'Password': 'hahahihihoho'}, 'Update': {'Address': 'hahahihihoho'}}, true);
+        }, {'User': {'Password': 'hahahihihoho'}, 'Update': {'Address': 'hahahihihoho'}}, true);
     },
     'DELETE /User/Self ': function(Test) {
-        Test.expect(1);
+        Test.expect(4);
         var Requester = new RequestHandler();
         Requester.Request('DELETE', '/User/Self', function(Status, Body) {
             Test.ok(Status === 401, "Confirming that trying to delete self when not logged in returns 401.");
-            
-            Test.done();
-        });
+            CreateAndLogin(Requester, {'Username': 'Magnitus', 'Email': 'ma@ma.ma', 'Password': 'hahahihihoho', 'Address': 'Vinvin du finfin'}, function() {
+                Requester.Request('DELETE', '/User/Self', function(Status, Body) {
+                    Test.ok(Status === 400, "Confirming that passing a malformed password value returns 400.");
+                    Requester.Request('DELETE', '/User/Self', function(Status, Body) {
+                        Test.ok(Status === 404, "Confirming that passing the wrong password value returns 404.");
+                        Requester.Request('DELETE', '/User/Self', function(Status, Body) {
+                            Test.ok(Status === 204, "Confirming that a successful deletion returns 204.");
+                            Test.done();
+                        }, {'User': {'Password': 'hahahihihoho'}}, true);
+                    }, {'User': {'Password': 'hahahihihoho2'}}, true);
+                }, {'User': {'Password': 'haha'}}, true);
+            });
+        }, {'User': {'Password': 'hahahihihoho'}}, true);
     },
     'GET /User/Self': function(Test) {
-        Test.expect(0);
-        Test.done();
+        Test.expect(3);
+        var Requester = new RequestHandler();
+        Requester.Request('GET', '/User/Self', function(Status, Body) {
+            Test.ok(Status === 401, "Confirming that fetching self-info when not logged in returns 401.");
+            CreateAndLogin(Requester, {'Username': 'Magnitus', 'Email': 'ma@ma.ma', 'Password': 'hahahihihoho', 'Address': 'Vinvin du finfin'}, function() {
+                Requester.Request('GET', '/User/Self', function(Status, Body) {
+                    Test.ok(Status === 200, "Confirming successfully retrieving the user info yields a status of 200.");
+                    Test.ok(Body.Username && Body.Email && Body.Address && (!Body.Password) && (!Body.Gender) && (!Body.Age) && (!Body.EmailToken) && (!Body._id), "Confirming that only the defined non-secret user fields are returned.");
+                    Test.done();
+                }, {}, true);
+            }, true);
+        }, {}, true);
     },
     'PUT /Session/Self/User': function(Test) {
         Test.expect(0);
+        var Requester = new RequestHandler();
         Test.done();
     },
     'DELETE /Session/Self/User': function(Test) {
