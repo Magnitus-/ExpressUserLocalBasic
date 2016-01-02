@@ -371,27 +371,76 @@ exports.Main = {
         }, {'User': {'Username': 'Magnitus', 'Email': 'ma@ma.ma', 'Password': 'hahahihihoho', 'Address': 'Vinvin du finfin'}}, true);
     },
     'DELETE /Session/Self/User': function(Test) {
-        Test.expect(0);
-        Test.done();
+        Test.expect(2);
+        var Requester = new RequestHandler();
+        Requester.Request('DELETE', '/Session/Self/User', function(Status, Body) {
+            Test.ok(Status === 404, "Confirming that trying to delete a non-existing session returns 404.");
+            CreateAndLogin(Requester, {'Username': 'Magnitus', 'Email': 'ma@ma.ma', 'Password': 'hahahihihoho', 'Address': 'Vinvin du finfin'}, function() {
+                Requester.Request('DELETE', '/Session/Self/User', function(Status, Body) {
+                    Test.ok(Status === 204, "Confirming that successfully deleting a session returns 204.");
+                    Test.done();
+                });
+            });
+        }, {}, true);
     },
     'GET /Users/:Field/:ID/Count': function(Test) {
-        Test.expect(0);
-        Test.done();
+        Test.expect(4);
+        var Requester = new RequestHandler();
+        Requester.Request('GET', '/Users/Username/Magnitus/Count', function(Status, Body) {
+            Test.ok(Status === 200, "Confirming that a successful count request returns 200.");
+            Test.ok(Body.Count === 0, "Confirming that a successful count request returns the count in the body.");
+            Requester.Request('GET', '/Users/Age/23/Count', function(Status, Body) {
+                Test.ok(Status === 401, "Confirming that a count request on a field the user is not allowed to see returns 401.");
+                Requester.Request('GET', '/Users/badfield/abc/Count', function(Status, Body) {
+                    Test.ok(Status === 400, "Confirming that a count request on a non-existent field returns 400.");
+                    Test.done();
+                }, {}, true);
+            }, {}, true);
+        }, {}, true);
     },
     'PUT /User/Self/Memberships/:Membership': function(Test) {
-        Test.expect(0);
-        Test.done();
+        Test.expect(5);
+        var Requester = new RequestHandler();
+        Requester.Request('PUT', '/User/Self/Memberships/Validated', function(Status, Body) {
+            Test.ok(Status === 401, "Confirming that validating your account when not logged in returns 401.");
+            CreateAndLogin(Requester, {'Username': 'Magnitus', 'Email': 'ma@ma.ma', 'Password': 'hahahihihoho', 'Address': 'Vinvin du finfin'}, function() {
+                Requester.Request('GET', '/User/Username/Magnitus', function(Status, User) {
+                    Requester.Request('PUT', '/User/Self/Memberships/YesMan', function(Status, Body) {
+                        Test.ok(Status === 404, "Confirming that adding a group other than validated to self retourns 404.");
+                        Requester.Request('PUT', '/User/Self/Memberships/Validated', function(Status, Body) {
+                            Test.ok(Status === 400, "Confirming that validating with a validation token returns 400.");
+                            Requester.Request('PUT', '/User/Self/Memberships/Validated', function(Status, Body) {
+                                Test.ok(Status === 404, "Confirming that validating with a bad validation token returns 404.");
+                                Requester.Request('PUT', '/User/Self/Memberships/Validated', function(Status, Body) {
+                                    Test.ok(Status === 201, "Confirming that validating properly returns 201.");
+                                    Test.done();
+                                }, {'User': {'EmailToken': User.EmailToken}}, true);
+                            }, {'User': {'EmailToken': 'yololololo'}}, true);
+                        }, {'User': {}}, true);
+                    }, {}, true);
+                }, {}, true);
+            }, true);
+        }, {}, true);
     },
     'DELETE /User/Self/Memberships/:Membership': function(Test) {
-        Test.expect(0);
-        Test.done();
+        Test.expect(1);
+        var Requester = new RequestHandler();
+        Requester.Request('DELETE', '/User/Self/Memberships/Validated', function(Status, Body) {
+            Test.ok(Status === 404, "Confirming that trying to remove validation via self request returns 404.");
+            Test.done();
+        }, {}, true);
     },
     'POST /User/Self/Recovery/:SetField': function(Test) {
-        Test.expect(0);
-        Test.done();
+        Test.expect(1);
+        var Requester = new RequestHandler();
+        Requester.Request('POST', '/User/Self/Recovery/Password', function(Status, Body) {
+            Test.ok(Status === 404, "Confirming that trying to initiate a recovery via self request returns 404.");
+            Test.done();
+        }, {}, true);
     },
     'POST /User/:Field/:ID/Recovery/:SetField': function(Test) {
         Test.expect(0);
+        var Requester = new RequestHandler();
         Test.done();
     },
     'PATCH /User/:Field/:ID': function(Test) {
