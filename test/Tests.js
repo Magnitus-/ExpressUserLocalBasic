@@ -283,7 +283,7 @@ exports.Main = {
         }, {'User': {'Username': 'Magnitus', 'Email': 'ma@ma.ma', 'Password': 'hahahihihoho'}}, true);
     },
     'PATCH /User/Self': function(Test) {
-        Test.expect(7);
+        Test.expect(8);
         var Requester = new RequestHandler();
         Requester.Request('PATCH', '/User/Self', function(Status, Body) {
             Test.ok(Status === 401, "Confirming that trying to modify self when not logged in returns 401.");
@@ -300,7 +300,12 @@ exports.Main = {
                                     Test.ok(Status === 404, "Confirming that passing the wrong password value returns 404.");
                                     Requester.Request('PATCH', '/User/Self', function(Status, Body) {
                                         Test.ok(Status === 204, "Confirming that a successful modification returns 204.");
-                                        Test.done();
+                                        Requester.Request('POST', '/Users', function(Status, Body) {
+                                            Requester.Request('PATCH', '/User/Self', function(Status, Body) {
+                                                Test.ok(Status === 409, "Confirming that conflicting with unique key in the store returns 409.");
+                                                Test.done();
+                                            }, {'User': {'Password': 'hahahihihoho'}, 'Update': {'Email': 'ma2@ma.ma'}}, true);
+                                        }, {'User': {'Username': 'Magnitus2', 'Email': 'ma2@ma.ma', 'Password': 'hahahihihoho', 'Address': 'Vinvin du finfin'}}, true);
                                     }, {'User': {'Password': 'hahahihihoho'}, 'Update': {'Address': '1234 fake rue', 'Age': 12}}, true);
                                 }, {'User': {'Password': 'hahahihi'}, 'Update': {'Address': '1234 fake rue', 'Age': 12}}, true);
                             }, {'User': {'Password': 'ha'}, 'Update': {'Address': '1234 fake rue', 'Age': 12}}, true);
@@ -344,9 +349,26 @@ exports.Main = {
         }, {}, true);
     },
     'PUT /Session/Self/User': function(Test) {
-        Test.expect(0);
+        Test.expect(5);
         var Requester = new RequestHandler();
-        Test.done();
+        Requester.Request('POST', '/Users', function(Status, Body) {
+            Requester.Request('PUT', '/Session/Self/User', function(Status, Body) {
+                Test.ok(Status === 400, "Confirming that trying to login without ID yields 400.");
+                Requester.Request('PUT', '/Session/Self/User', function(Status, Body) {
+                    Test.ok(Status === 400, "Confirming that trying to login without authentication yields 400.");
+                    Requester.Request('PUT', '/Session/Self/User', function(Status, Body) {
+                        Test.ok(Status === 400, "Confirming that trying to login with a bad field yields 400.");
+                        Requester.Request('PUT', '/Session/Self/User', function(Status, Body) {
+                            Test.ok(Status === 404, "Confirming that trying to login with non-existent credentials yield 404.");
+                            Requester.Request('PUT', '/Session/Self/User', function(Status, Body) {
+                                Test.ok(Status === 204, "Confirming that successful login yields 204.");
+                                Test.done();
+                            }, {'User': {'Email': 'ma@ma.ma', 'Password': 'hahahihihoho'}}, true);
+                        }, {'User': {'Email': 'ma@ma.ma', 'Password': 'hahahihihoho2'}}, true);
+                    }, {'User': {'Email': 'ma@ma.ma', 'Password': 'ha'}}, true);
+                }, {'User': {'Email': 'ma@ma.ma'}}, true);
+            }, {'User': {'Password': 'hahahihihoho'}}, true);
+        }, {'User': {'Username': 'Magnitus', 'Email': 'ma@ma.ma', 'Password': 'hahahihihoho', 'Address': 'Vinvin du finfin'}}, true);
     },
     'DELETE /Session/Self/User': function(Test) {
         Test.expect(0);
